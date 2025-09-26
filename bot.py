@@ -39,14 +39,33 @@ class Base44Client:
             if not self.session:
                 self.session = aiohttp.ClientSession()
             url = f'{self.api_base_url}/{function_name}'
+            
+            # Get Base44 function token from environment
+            import os
+            from dotenv import load_dotenv
+            load_dotenv('config.env')
+            base44_token = os.getenv('BASE44_FUNCTION_TOKEN', '')
+            
             headers = {
                 'Content-Type': 'application/json', 
                 'User-Agent': 'DiscordBot/1.0',
-                'Authorization': f'Bearer {self.bot_token}' if hasattr(self, 'bot_token') else ''
+                'Authorization': f'Bearer {base44_token}'
             }
             async with self.session.post(url, json=payload or {}, headers=headers) as response:
                 if response.status == 200:
-                    return await response.json()
+                    # Try to parse as JSON first
+                    try:
+                        return await response.json()
+                    except Exception as json_error:
+                        # If JSON parsing fails, try to get text response
+                        try:
+                            text_response = await response.text()
+                            print(f' API returned text instead of JSON: {text_response[:100]}...')
+                            # Return a success response for text responses
+                            return {"success": True, "message": text_response}
+                        except Exception as text_error:
+                            print(f' Failed to parse both JSON and text: {text_error}')
+                            return None
                 else:
                     print(f' API call failed: {function_name} - Status: {response.status}')
                     if response.status == 500:
