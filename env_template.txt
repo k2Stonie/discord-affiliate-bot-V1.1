@@ -1,0 +1,17 @@
+# Discord Affiliate Bot Environment Variables
+# Copy this file to .env and fill in your actual values
+
+# Discord Configuration
+DISCORD_BOT_TOKEN=your_discord_bot_token_here
+DISCORD_CLIENT_ID=1420475643166068877
+DISCORD_CLIENT_SECRET=your_discord_client_secret_here
+
+# Base44 App Configuration
+BASE44_APP_ID=68d620836605dfa2b7e4d988
+BASE44_FUNCTION_TOKEN=0710e3e1429e440fadb12009f3be92ca
+API_BASE_URL=https://app.base44.com/api/
+APP_PREVIEW_URL=https://68d620836605dfa2b7e4d988.base44app.com/
+
+# Database Configuration (MongoDB Atlas)
+MONGO_URI=your_mongodb_connection_string_here
+DB_NAME=discord_bot_db
