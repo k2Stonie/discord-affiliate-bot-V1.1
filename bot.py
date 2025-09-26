@@ -76,15 +76,37 @@ class Base44Client:
             print(f' Error calling {function_name}: {e}')
             return None
     
-    async def get_bot_config(self, bot_id, bot_token):
-        payload = {'bot_id': bot_id}
-        return await self.call_function('getBotConfig', payload)
+    async def get_bot_config(self, bot_id, bot_token, server_id=None):
+        # Use the first guild's ID if no server_id provided
+        if not server_id and discord_bot.guilds:
+            server_id = str(discord_bot.guilds[0].id)
+        
+        payload = {
+            "action": "getBotConfig",
+            "payload": {
+                "serverId": server_id
+            }
+        }
+        return await self.call_function('botConfigManager', payload)
     
     async def log_bot_activity(self, activity_data):
-        return await self.call_function('logBotActivity', activity_data)
+        payload = {
+            "action": "logBotActivity",
+            "payload": {
+                "activity": activity_data
+            }
+        }
+        return await self.call_function('botConfigManager', payload)
     
-    async def update_bot_status(self, status_data):
-        return await self.call_function('updateBotStatus', status_data)
+    async def update_bot_status(self, status_data, config_id=None):
+        payload = {
+            "action": "updateBotStatus",
+            "payload": {
+                "configId": config_id or "default",
+                "status": status_data.get('status', 'online')
+            }
+        }
+        return await self.call_function('botConfigManager', payload)
     
     async def close(self):
         if self.session:
@@ -128,9 +150,13 @@ class AffiliateBot:
         
     async def get_bot_config(self):
         try:
-            config = await self.base44_client.get_bot_config(self.bot_id, self.bot_token)
+            # Get server_id from first guild
+            server_id = str(discord_bot.guilds[0].id) if discord_bot.guilds else None
+            config = await self.base44_client.get_bot_config(self.bot_id, self.bot_token, server_id)
             if config and config.get('success'):
                 self.current_config = config.get('data', {})
+                # Store config_id for status updates
+                self.config_id = config.get('data', {}).get('id')
                 
                 # Sync Base44 config to database for all guilds
                 for guild in discord_bot.guilds:
@@ -165,12 +191,14 @@ class AffiliateBot:
     
     async def log_bot_activity(self, activity_type, **kwargs):
         try:
+            # Get server_id from kwargs or use first guild
+            server_id = kwargs.get('guild_id', str(discord_bot.guilds[0].id) if discord_bot.guilds else 'unknown')
+            
             activity_data = {
-                'bot_id': self.bot_id,
-                'activity_type': activity_type,
-                'timestamp': datetime.utcnow().isoformat() + 'Z',
-                'affiliate_email': 'bot@base44.app',  # Required by Base44 API
-                **kwargs
+                'server_id': server_id,
+                'event_type': activity_type,
+                'details': {k: v for k, v in kwargs.items() if k not in ['guild_id', 'user_id']},
+                'user_id': kwargs.get('user_id', 'unknown')
             }
             
             # Log to Base44 dashboard
@@ -232,8 +260,7 @@ class AffiliateBot:
     
     def create_trackable_link(self, original_url, affiliate_id, campaign_id):
         tracking_code = f'{affiliate_id}_{campaign_id}_{int(time.time())}'
-        encoded_url = urllib.parse.quote(original_url)
-        return f'{self.api_base_url}/functions/trackLinkClick?code={tracking_code}&redirect={encoded_url}'
+        return f'{self.api_base_url}/apps/{self.bot_id}/functions/affiliateManager?action=trackLinkClick&linkCode={tracking_code}'
     
     async def process_campaign(self, template, config):
         try:
@@ -310,10 +337,14 @@ class AffiliateBot:
                 else:
                     print(' No message templates configured yet - bot is ready and waiting')
                 
-                await self.update_bot_status('active', 'Bot running smoothly', {
-                    'messages_sent': len(templates),
-                    'templates_configured': len(templates)
-                })
+                await self.update_bot_status({
+                    'status': 'active', 
+                    'message': 'Bot running smoothly',
+                    'stats': {
+                        'messages_sent': len(templates),
+                        'templates_configured': len(templates)
+                    }
+                }, self.config_id)
                 print(' Waiting 5 minutes before next cycle...')
                 await asyncio.sleep(300)
             except Exception as e:
@@ -365,7 +396,10 @@ async def on_ready():
             print(f'    Settings: Prefix="{settings["prefix"]}", Welcome="{settings["welcome_message"][:30]}..."')
     
     await affiliate_bot.log_bot_activity('startup', success=True)
-    await affiliate_bot.update_bot_status('active', 'Bot started successfully')
+    await affiliate_bot.update_bot_status({
+        'status': 'active', 
+        'message': 'Bot started successfully'
+    }, affiliate_bot.config_id)
     asyncio.create_task(affiliate_bot.main_loop())
 
 @discord_bot.event
