@@ -21,6 +21,7 @@ load_dotenv('config.env')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 BOT_ID = os.getenv('BASE44_APP_ID', '68d1f85a602cecfca6c02c10')
 API_BASE_URL = os.getenv('API_BASE_URL', 'https://base44.app/api/apps/68d1f85a602cecfca6c10/functions')
+BASE44_FUNCTION_TOKEN = os.getenv('BASE44_FUNCTION_TOKEN', '')
 
 if not DISCORD_BOT_TOKEN:
     print(' Error: DISCORD_BOT_TOKEN environment variable is required!')
@@ -41,11 +42,8 @@ class Base44Client:
                 self.session = aiohttp.ClientSession()
             url = f'{self.api_base_url}/{function_name}'
             
-            # Get Base44 function token from environment
-            import os
-            from dotenv import load_dotenv
-            load_dotenv('config.env')
-            base44_token = os.getenv('BASE44_FUNCTION_TOKEN', '')
+            # Get Base44 function token from global variable
+            base44_token = BASE44_FUNCTION_TOKEN
             
             headers = {
                 'Content-Type': 'application/json', 
