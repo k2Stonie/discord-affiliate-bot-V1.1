@@ -4,14 +4,14 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python start_bot.py
+    startCommand: python bot.py
     envVars:
       - key: DISCORD_BOT_TOKEN
         sync: false
       - key: BASE44_APP_ID
         value: 68d1f85a602cecfca6c02c10
       - key: API_BASE_URL
-        value: https://discordaffiliatebot.base44.app/functions
+        value: https://app.base44.com/api/
       - key: MONGO_URI
         sync: false
       - key: DB_NAME

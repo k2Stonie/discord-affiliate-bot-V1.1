@@ -15,7 +15,8 @@ from database import (
     init_database, close_database
 )
 
-load_dotenv()
+# Ensure environment variables are loaded from config.env when present
+load_dotenv('config.env')
 
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 BOT_ID = os.getenv('BASE44_APP_ID', '68d1f85a602cecfca6c02c10')
