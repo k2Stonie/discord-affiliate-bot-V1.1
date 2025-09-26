@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     name: discord-affiliate-bot
     env: python
     plan: free
