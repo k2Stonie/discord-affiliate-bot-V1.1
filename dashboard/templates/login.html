@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Discord Affiliate Bot Dashboard{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="login-icon mb-3">
+                                <i class="fas fa-robot text-primary" style="font-size: 3rem;"></i>
+                            </div>
+                            <h2 class="fw-bold text-dark">Welcome Back</h2>
+                            <p class="text-muted">Sign in to manage your Discord Affiliate Bot</p>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <a href="{{ url_for('login') }}" class="btn btn-discord btn-lg">
+                                <i class="fab fa-discord me-2"></i>
+                                Login with Discord
+                            </a>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                By logging in, you agree to our terms of service and privacy policy.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-bullhorn text-success me-2"></i>
+                            <span>Marketing Campaigns</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users text-info me-2"></i>
+                            <span>Role Management</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line text-warning me-2"></i>
+                            <span>Analytics & Insights</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.login-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.login-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.btn-discord {
+    background-color: #5865F2;
+    border-color: #5865F2;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-discord:hover {
+    background-color: #4752C4;
+    border-color: #4752C4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.feature-item {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.card {
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 768px) {
+    .feature-list {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}

@@ -145,6 +145,8 @@ class AffiliateBot:
         self.rate_limiter = BotRateLimiter()
         self.base44_client = Base44Client(api_base_url)
         self.current_config = None
+        self.guild_overrides = {}
+        self.pending_updates = set()
         
     async def get_bot_config(self):
         try:
@@ -186,6 +188,42 @@ class AffiliateBot:
                 'affiliate_links': []
             }
             return self.current_config
+
+    async def apply_pending_overrides(self):
+        if not self.pending_updates:
+            return
+
+        if not db_manager.is_connected:
+            return
+
+        for guild_id in list(self.pending_updates):
+            try:
+                settings = await db_manager.get_guild_settings(guild_id)
+                self.guild_overrides[guild_id] = {
+                    'prefix': settings.get('prefix', '!'),
+                    'welcome_message': settings.get('welcome_message', 'Welcome!'),
+                    'auto_moderation': settings.get('auto_moderation', False),
+                    'enable_welcome_messages': settings.get('enable_welcome_messages', True)
+                }
+                self.pending_updates.discard(guild_id)
+                print(f' Applied updated settings for guild {guild_id}')
+            except Exception as e:
+                print(f' Failed to apply settings for guild {guild_id}: {e}')
+
+    async def sync_guild_presence(self):
+        if not db_manager.is_connected:
+            return
+
+        for guild in discord_bot.guilds:
+            try:
+                overrides = self.guild_overrides.get(str(guild.id), {})
+                overrides.update({
+                    'guild_name': guild.name,
+                    'bot_connected': True
+                })
+                await db_manager.update_guild_settings(str(guild.id), overrides)
+            except Exception as e:
+                print(f' Failed to update presence for guild {guild.id}: {e}')
     
     async def log_bot_activity(self, activity_type, **kwargs):
         try:
@@ -321,7 +359,10 @@ class AffiliateBot:
     async def main_loop(self):
         while True:
             try:
+                # Apply pending overrides before fetching remote config
+                await self.apply_pending_overrides()
                 config = await self.get_bot_config()
+                await self.sync_guild_presence()
                 if not config.get('active', False):
                     print(' Bot is paused, waiting...')
                     await asyncio.sleep(60)
@@ -365,6 +406,9 @@ def create_button_view(buttons):
     return view
 
 affiliate_bot = AffiliateBot(DISCORD_BOT_TOKEN, API_BASE_URL, BOT_ID)
+
+def notify_guild_update(guild_id: str):
+    affiliate_bot.pending_updates.add(guild_id)
 
 @discord_bot.event
 async def on_ready():

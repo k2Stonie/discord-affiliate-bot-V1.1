@@ -40,6 +40,8 @@ class DatabaseManager:
             "target_roles": [],
             "message_templates": [],
             "affiliate_links": [],
+            "guild_name": None,
+            "bot_connected": False,
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
@@ -279,7 +281,9 @@ class DatabaseManager:
                 "affiliate_links": base44_config.get("affiliate_links", []),
                 "prefix": base44_config.get("prefix", "!"),
                 "welcome_message": base44_config.get("welcome_message", "Welcome to the server!"),
-                "auto_moderation": base44_config.get("auto_moderation", False)
+                "auto_moderation": base44_config.get("auto_moderation", False),
+                "guild_name": base44_config.get("guild_name"),
+                "bot_connected": base44_config.get("bot_connected", False)
             }
             
             success = await self.update_guild_settings(guild_id, sync_settings)

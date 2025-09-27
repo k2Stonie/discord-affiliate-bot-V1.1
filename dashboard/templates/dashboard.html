@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Discord Affiliate Bot{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h5 class="text-white mb-0">Bot Management</h5>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="nav-section">
+                <h6 class="nav-section-title">Overview</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showOverview()">
+                            <i class="fas fa-tachometer-alt me-2"></i>Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showGuilds()">
+                            <i class="fas fa-server me-2"></i>Servers
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">Campaigns</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showCampaigns()">
+                            <i class="fas fa-bullhorn me-2"></i>All Campaigns
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTargetRoles()">
+                            <i class="fas fa-users me-2"></i>Target Roles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTemplates()">
+                            <i class="fas fa-file-alt me-2"></i>Message Templates
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">Analytics</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAnalytics()">
+                            <i class="fas fa-chart-bar me-2"></i>Statistics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showActivity()">
+                            <i class="fas fa-history me-2"></i>Activity Log
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h6 class="nav-section-title">Settings</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSettings()">
+                            <i class="fas fa-cog me-2"></i>Bot Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showIntegrations()">
+                            <i class="fas fa-plug me-2"></i>Integrations
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content-area">
+        <!-- Header -->
+        <div class="content-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="content-title" id="contentTitle">Dashboard Overview</h1>
+                    <p class="content-subtitle" id="contentSubtitle">Welcome back! Here's what's happening with your bot.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary me-2" onclick="refreshData()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                    <div class="bot-status" id="botStatus">
+                        <span class="status-indicator offline"></span>
+                        <span class="status-text">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-body">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="content-section">
+                <div class="row">
+                    <!-- Stats Cards -->
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="totalServers">0</h3>
+                                <p class="stat-label">Total Servers</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="totalMembers">0</h3>
+                                <p class="stat-label">Total Members</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="activeCampaigns">0</h3>
+                                <p class="stat-label">Active Campaigns</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-info">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="messagesSent">0</h3>
+                                <p class="stat-label">Messages Sent</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>Activity Overview
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="activityChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server me-2"></i>Connected Servers
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="serverList" class="server-list">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading servers...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guilds Section -->
+            <div id="guildsSection" class="content-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server me-2"></i>Connected Servers
+                                </h5>
+                                <button class="btn btn-primary btn-sm" onclick="showAddServer()">
+                                    <i class="fas fa-plus me-1"></i>Add Server
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="guildsGrid" class="row">
+                                    <!-- Guilds will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaigns Section -->
+            <div id="campaignsSection" class="content-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-bullhorn me-2"></i>Marketing Campaigns
+                                </h5>
+                                <button class="btn btn-primary btn-sm" onclick="showCreateCampaign()">
+                                    <i class="fas fa-plus me-1"></i>Create Campaign
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="campaignsList">
+                                    <!-- Campaigns will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Roles Section -->
+            <div id="targetRolesSection" class="content-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-users me-2"></i>Target Roles
+                                </h5>
+                                <button class="btn btn-primary btn-sm" onclick="showAddTargetRole()">
+                                    <i class="fas fa-plus me-1"></i>Add Role
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="targetRolesList">
+                                    <!-- Target roles will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="content-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <canvas id="messagesChart" height="200"></canvas>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <canvas id="campaignsChart" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settingsSection" class="content-section d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cog me-2"></i>Bot Settings
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="settingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="botPrefix" class="form-label">Command Prefix</label>
+                                                <input type="text" class="form-control" id="botPrefix" value="!">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="welcomeMessage" class="form-label">Welcome Message</label>
+                                                <textarea class="form-control" id="welcomeMessage" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="autoModeration">
+                                                <label class="form-check-label" for="autoModeration">
+                                                    Auto Moderation
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="welcomeMessages">
+                                                <label class="form-check-label" for="welcomeMessages">
+                                                    Welcome Messages
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Save Settings
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Guild Modal -->
+<div class="modal fade" id="guildModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Server Management</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="guildModalBody">
+                <!-- Guild details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Modal -->
+<div class="modal fade" id="campaignModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Campaign Management</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="campaignModalBody">
+                <!-- Campaign form will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- The main dashboard scripts are loaded via static/js/dashboard.js -->
+{% endblock %}
